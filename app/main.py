@@ -11,10 +11,10 @@ class Node:
 class Dictionary:
     def __init__(self) -> None:
         self.capacity = 8
-        self.size = 0
+        self.length = 0
         self.threshold = int(self.capacity * (2 / 3))
         self.load_factor = 2 / 3
-        self.table = [None] * self.capacity
+        self.hash_table = [None] * self.capacity
 
     def __setitem__(self, key: Any, value: Any) -> None:
         if self.check_load_factor():
@@ -23,42 +23,46 @@ class Dictionary:
         hash_key = hash(key)
         position = hash_key % self.capacity
 
-        while self.table[position] is not None:
-            if self.table[position].key == key:
-                self.table[position].value = value
+        while self.hash_table[position] is not None:
+            if self.hash_table[position].key == key:
+                self.hash_table[position].value = value
                 return
 
             position = (position + 1) % self.capacity
 
-        self.table[position] = Node(key, hash_key, value)
-        self.size += 1
+        self.hash_table[position] = Node(key, hash_key, value)
+        self.length += 1
 
     def __getitem__(self, key: Any) -> Any:
         key_to_hash = hash(key)
         index = key_to_hash % self.capacity
-        while self.table[index] is not None:
-            if self.table[index].key == key:
-                return self.table[index].value
+        while self.hash_table[index] is not None:
+            if self.hash_table[index].key == key:
+                return self.hash_table[index].value
 
             index = (index + 1) % self.capacity
 
-        raise KeyError(key)
+        raise KeyError((f"Key '{key}' was not found in the Dictionary."))
 
     def __len__(self) -> int:
-        return self.size
+        return self.length
 
     def resize(self) -> None:
         self.capacity *= 2
         self.threshold = int(self.capacity * (2 / 3))
-        self.size = 0
-        bucket = self.table
-        self.table = [None] * self.capacity
+        self.length = 0
+        bucket = self.hash_table
+        self.hash_table = [None] * self.capacity
         for node in bucket:
             if node:
                 self.__setitem__(node.key, node.value)
 
+    def clear(self) -> None:
+        self.hash_table = [None] * self.capacity
+        self.length = 0
+
     def check_load_factor(self) -> bool:
-        if self.size >= self.threshold:
+        if self.length >= self.threshold:
             return True
 
         return False
