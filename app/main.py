@@ -47,6 +47,29 @@ class Dictionary:
     def __len__(self) -> int:
         return self.length
 
+    def __delitem__(self, key: Any) -> None:
+        key_hash = hash(key)
+        index = key_hash % self.capacity
+
+        while self.hash_table[index] is not None:
+            if self.hash_table[index].key == key:
+                self.hash_table[index] = None
+                self.length -= 1
+                self._rehash_after_delete(index)
+                return
+            index = (index + 1) % self.capacity
+
+        raise KeyError(f"Key '{key}' not found for deletion.")
+
+    def _rehash_after_delete(self, hole_index: int) -> None:
+        current = (hole_index + 1) % self.capacity
+        while self.hash_table[current] is not None:
+            node_to_reinsert = self.hash_table[current]
+            self.hash_table[current] = None
+            self.length -= 1
+            self.__setitem__(node_to_reinsert.key, node_to_reinsert.value)
+            current = (current + 1) % self.capacity
+
     def resize(self) -> None:
         self.capacity *= 2
         self.threshold = int(self.capacity * (2 / 3))
