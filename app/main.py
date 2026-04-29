@@ -59,7 +59,7 @@ class Dictionary:
                 return
             index = (index + 1) % self.capacity
 
-        raise KeyError(f"Key '{key}' not found for deletion.")
+        raise KeyError(f"Key '{key}' not found!")
 
     def _rehash_after_delete(self, hole_index: int) -> None:
         current = (hole_index + 1) % self.capacity
